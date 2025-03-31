@@ -50,7 +50,8 @@ def prepare_wordcloud_data(df):
 
     for _, row in df.iterrows():
         keywords = row['keywords']  # 이미 numpy array 형태
-        for kw in keywords:
+        unique_keywords = set(keywords)
+        for kw in unique_keywords:
             keyword_count[kw] += 1
             keyword_star_sum[kw] += row['star_rating']
 
