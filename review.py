@@ -17,13 +17,13 @@ from collections import defaultdict
 #     words = pd.read_pickle('data/wordcloud_data.pkl').to_dict('records')
 #     return df, words
 
-@st.cache_data
 def get_color(score):
     norm = Normalize(vmin=1, vmax=5)
     cmap = cm.get_cmap('coolwarm')
     rgba = cmap(norm(score))
     return rgb2hex(rgba)
 
+@st.cache_resource
 def load_processed_data():
     # BigQuery 클라이언트 설정
     credentials = service_account.Credentials.from_service_account_info(
