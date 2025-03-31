@@ -66,7 +66,7 @@ def prepare_wordcloud_data(df):
         })
     return words
 
-def create_wordcloud(words):
+def create_wordcloud(words, wordcloud_key):
     return wordcloud.visualize(
         words,
         per_word_coloring=True,
@@ -76,7 +76,8 @@ def create_wordcloud(words):
             'avg_rating': '평균 별점'
         },
         width="100%",
-        height="500px"
+        height="500px",
+        key=wordcloud_key
     )
 
 def main():
@@ -135,51 +136,44 @@ def main():
         words = prepare_wordcloud_data(df)
 
         # 세션 상태 초기화
-        # if "clicked_word" not in st.session_state:
-        #     st.session_state.clicked_word = None
-        # if "wordcloud_reset" not in st.session_state:
-        #     st.session_state.wordcloud_reset = False
+        if "clicked_word" not in st.session_state:
+            st.session_state.clicked_word = None
+        if "wordcloud_reset" not in st.session_state:
+            st.session_state.wordcloud_reset = False
 
-        # # 초기화 버튼
-        # if st.session_state.clicked_word:
-        #     if st.button("🔄 선택된 키워드 초기화"):
-        #         st.session_state.clicked_word = None
-        #         st.session_state.wordcloud_reset = True
-        #         st.rerun()
+        # 초기화 버튼
+        if st.session_state.clicked_word:
+            if st.button("🔄 선택된 키워드 초기화"):
+                st.session_state.clicked_word = None
+                st.session_state.wordcloud_reset = True
+                st.rerun()
         
         # 워드클라우드 키 설정
-        # if st.session_state.wordcloud_reset:
-        #     wordcloud_key = f"wordcloud_{uuid.uuid4()}"
-        #     st.session_state.wordcloud_reset = False
-        # else:
-        #     wordcloud_key = "wordcloud"
+        if st.session_state.wordcloud_reset:
+            wordcloud_key = f"wordcloud_{uuid.uuid4()}"
+            st.session_state.wordcloud_reset = False
+        else:
+            wordcloud_key = "wordcloud"
 
-        # st.write("워드클라우드 데이터:", words)  # 디버그용
         
         if not words:  # words가 비어있는지 확인
             st.warning("표시할 키워드가 없습니다.")
             return
-        # 워드클라우드를 위한 고정 컨테이너
-        wordcloud_container = st.empty()
         
-        # 워드클라우드 시각화
-        with wordcloud_container:
-            selected_word = create_wordcloud(words)
+        selected_word = create_wordcloud(words, wordcloud_key)
 
 
         # 워드클라우드 시각화
         
-        # if (
-        #     selected_word
-        #     and isinstance(selected_word.get("clicked"), dict)
-        # ):
-        #     st.session_state.clicked_word = selected_word["clicked"]["text"]
+        if (
+            selected_word
+            and isinstance(selected_word.get("clicked"), dict)
+        ):
+            st.session_state.clicked_word = selected_word["clicked"]["text"]
         
-        # # 클릭된 키워드가 있으면 리뷰 출력
-        # if st.session_state.clicked_word:
+        # 클릭된 키워드가 있으면 리뷰 출력
+        if st.session_state.clicked_word:
 
-        # 클릭된 단어 처리
-        if selected_word and isinstance(selected_word.get("clicked"), dict):
             clicked_word = selected_word["clicked"]["text"]
             filtered_df = df[df['keywords'].apply(lambda x: clicked_word in x)]
             title = f"'{clicked_word}' 키워드가 포함된 리뷰 별점 분포"
