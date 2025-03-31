@@ -66,6 +66,20 @@ def prepare_wordcloud_data(df):
         })
     return words
 
+@st.cache_resource
+def create_wordcloud(words):
+    return wordcloud.visualize(
+        words,
+        per_word_coloring=True,
+        tooltip_data_fields={
+            'text': '키워드',
+            'value': '빈도',
+            'avg_rating': '평균 별점'
+        },
+        width="100%",
+        height="500px"
+    )
+
 def main():
     st.title("🎨 전시 리뷰 워드클라우드")
     
@@ -147,18 +161,7 @@ def main():
             st.warning("표시할 키워드가 없습니다.")
             return
         # 워드클라우드 시각화
-        selected_word = wordcloud.visualize(
-            words,
-            per_word_coloring=True,
-            tooltip_data_fields={
-                'text': '키워드',
-                'value': '빈도',
-                'avg_rating': '평균 별점'
-            },
-            width="100%",
-            height="500px"
-            # key=wordcloud_key
-        )
+        selected_word = create_wordcloud(words)
 
         # 워드클라우드 시각화
         
