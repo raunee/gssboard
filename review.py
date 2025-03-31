@@ -67,18 +67,23 @@ def prepare_wordcloud_data(df):
     return words
 
 def create_wordcloud(words, wordcloud_key):
-    return wordcloud.visualize(
+    selected_word = wordcloud.visualize(
         words,
         per_word_coloring=True,
-        tooltip_data_fields={
-            'text': '키워드',
-            'value': '빈도',
-            'avg_rating': '평균 별점'
-        },
+        tooltip_data_fields={},  # tooltip 제거
         width="100%",
         height="500px",
         key=wordcloud_key
     )
+
+    # 클릭한 단어 정보 출력
+    if selected_word:
+        st.markdown("### 선택한 키워드 정보")
+        st.info(f"""
+        **키워드:** {selected_word['text']}  
+        **빈도:** {selected_word['value']}  
+        **평균 별점:** {selected_word.get('avg_rating', '정보 없음')}
+        """)
 
 def main():
     st.title("🎨 전시 리뷰 워드클라우드")
