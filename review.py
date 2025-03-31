@@ -127,7 +127,7 @@ def main():
         
     if st.session_state.df is not None:
 
-        # 세션 상태 초기화
+       # 세션 상태 초기화
         if "clicked_word" not in st.session_state:
             st.session_state.clicked_word = None
         if "wordcloud_reset" not in st.session_state:
@@ -146,12 +146,15 @@ def main():
                 st.session_state.wordcloud_reset = True
                 st.rerun()
         
+        # 여기에 새로운 코드 추가
         # 워드클라우드 데이터 준비
-        words = prepare_wordcloud_data(df)
-        if not words:  # words가 비어있는지 확인
+        if 'words' not in st.session_state:
+            st.session_state.words = prepare_wordcloud_data(df)
+            
+        if not st.session_state.words:  # words가 비어있는지 확인
             st.warning("표시할 키워드가 없습니다.")
             return
-        
+            
         # ✅ 워드클라우드 key 설정
         if st.session_state.wordcloud_reset:
             wordcloud_key = f"wordcloud_{uuid.uuid4()}"
@@ -159,8 +162,9 @@ def main():
         else:
             wordcloud_key = "wordcloud"
         
-        selected_word = create_wordcloud(words, wordcloud_key)
-
+        # words를 st.session_state.words로 변경
+        selected_word = create_wordcloud(st.session_state.words, wordcloud_key)
+        
         # 워드클라우드 시각화
         
         if (
