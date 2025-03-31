@@ -100,13 +100,13 @@ def main():
             value=((datetime.now() - timedelta(days=1)).date(), (datetime.now() - timedelta(days=1)).date()),
             key="date_range"
         )
-        start_date, end_date = date_range
     
     # 세션 상태 초기화
     if 'df' not in st.session_state:
         st.session_state.df = None
 
-    if st.button("데이터 조회"):
+    if st.button("데이터 조회") and len(date_range) == 2:
+        start_date, end_date = date_range
         
         # 선택된 조건으로 데이터 쿼리
         filter_query = f"""
