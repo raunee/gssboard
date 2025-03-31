@@ -131,6 +131,14 @@ def main():
         st.session_state.df = client.query(filter_query, job_config=job_config).to_dataframe()
         
     if st.session_state.df is not None:
+        df = st.session_state.df
+
+        if df.empty:
+            st.warning("선택한 기간에 해당하는 데이터가 없습니다.")
+            return
+        
+        # 워드클라우드 데이터 준비
+        words = prepare_wordcloud_data(df)
 
         # 세션 상태 초기화
         if "clicked_word" not in st.session_state:
@@ -138,12 +146,6 @@ def main():
         if "wordcloud_reset" not in st.session_state:
             st.session_state.wordcloud_reset = False
 
-        df = st.session_state.df
-
-        if df.empty:
-            st.warning("선택한 기간에 해당하는 데이터가 없습니다.")
-            return
-        
         # 초기화 버튼
         if st.session_state.clicked_word:
             if st.button("🔄 선택된 키워드 초기화"):
@@ -151,20 +153,20 @@ def main():
                 st.session_state.wordcloud_reset = True
                 st.rerun()
         
-        # 워드클라우드 데이터 준비
-        words = prepare_wordcloud_data(df)
-        if not words:  # words가 비어있는지 확인
-            st.warning("표시할 키워드가 없습니다.")
-            return
-        
-        # ✅ 워드클라우드 key 설정
+        # 워드클라우드 키 설정
         if st.session_state.wordcloud_reset:
             wordcloud_key = f"wordcloud_{uuid.uuid4()}"
             st.session_state.wordcloud_reset = False
         else:
             wordcloud_key = "wordcloud"
+
+        
+        if not words:  # words가 비어있는지 확인
+            st.warning("표시할 키워드가 없습니다.")
+            return
         
         selected_word = create_wordcloud(words, wordcloud_key)
+
 
         # 워드클라우드 시각화
         
