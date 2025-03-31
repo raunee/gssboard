@@ -77,7 +77,7 @@ def create_wordcloud(words, wordcloud_key):
     )
 
     # 클릭한 단어 정보 출력
-    if selected_word:
+    if isinstance(selected_word, dict) and 'text' in selected_word:
         st.markdown("### 선택한 키워드 정보")
         st.info(f"""
         **키워드:** {selected_word['text']}  
