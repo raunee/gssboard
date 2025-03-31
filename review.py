@@ -66,7 +66,6 @@ def prepare_wordcloud_data(df):
         })
     return words
 
-@st.cache_resource
 def create_wordcloud(words):
     return wordcloud.visualize(
         words,
@@ -160,8 +159,13 @@ def main():
         if not words:  # words가 비어있는지 확인
             st.warning("표시할 키워드가 없습니다.")
             return
+        # 워드클라우드를 위한 고정 컨테이너
+        wordcloud_container = st.empty()
+        
         # 워드클라우드 시각화
-        selected_word = create_wordcloud(words)
+        with wordcloud_container:
+            selected_word = create_wordcloud(words)
+
 
         # 워드클라우드 시각화
         
