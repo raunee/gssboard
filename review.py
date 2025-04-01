@@ -9,6 +9,7 @@ from matplotlib import cm
 from matplotlib.colors import Normalize, rgb2hex
 from datetime import datetime, timedelta
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 
 # 캐시된 데이터 로드
 # @st.cache_data
@@ -36,12 +37,18 @@ def load_processed_data():
     
     # 전시회 목록 가져오기
     exhibition_query = f"""
-    SELECT DISTINCT exhibition_name 
+    SELECT 
+        ARRAY_AGG(DISTINCT exhibition_name) AS exhibition_names,
+        MAX(updated_at) AS last_updated
     FROM `{project_id}.{dataset}.reviews`
     """
-    exhibitions = client.query(exhibition_query).to_dataframe()
+    result = client.query(exhibition_query).to_dataframe()
     
-    return client, project_id, dataset, exhibitions
+    # 전시회 이름 리스트와 마지막 업데이트 값 추출
+    exhibition_names = result['exhibition_names'].iloc[0]  # 리스트
+    last_updated = result['last_updated'].iloc[0].replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo("Asia/Seoul"))          # datetime
+    
+    return client, project_id, dataset, exhibition_names, last_updated
 
 def prepare_wordcloud_data(df):
     # 키워드별로 집계
@@ -84,14 +91,17 @@ def main():
     st.title("🎨 전시 리뷰 워드클라우드")
     
     # 데이터 로드
-    client, project_id, dataset, exhibitions = load_processed_data()
+    client, project_id, dataset, exhibition_names, last_updated = load_processed_data()
+
+    # 최종 업데이트 시간 표시
+    st.caption(f"마지막 업데이트: {last_updated.strftime('%Y-%m-%d %H:%M:%S')}")
     
     # 필터 UI
     col1, col2 = st.columns(2)
     with col1:
         selected_exhibition = st.selectbox(
             "전시회 선택",
-            options=exhibitions['exhibition_name'].tolist()
+            options=exhibition_names
         )
     
     with col2:
