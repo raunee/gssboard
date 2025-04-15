@@ -13,3 +13,4 @@ streamlit==1.41.1
 streamlit_wordcloud_updated==0.1.1
 google-cloud-bigquery
 db-dtypes
+google-cloud-bigquery-storage
