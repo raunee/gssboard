@@ -10,6 +10,7 @@ from matplotlib.colors import Normalize, rgb2hex
 from datetime import datetime, timedelta
 from collections import defaultdict
 from zoneinfo import ZoneInfo
+import math
 
 # 캐시된 데이터 로드
 # @st.cache_data
@@ -51,6 +52,8 @@ def load_processed_data():
     return client, project_id, dataset, exhibition_names, last_updated
 
 def prepare_wordcloud_data(df):
+    # NaN이 포함된 row 제거
+    df = df[df['star_rating'].notna() & df['keywords'].notna()]
     # 키워드별로 집계
     keyword_count = defaultdict(int)
     keyword_star_sum = defaultdict(float)
