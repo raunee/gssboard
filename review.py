@@ -51,7 +51,7 @@ def load_processed_data():
     
     return client, project_id, dataset, exhibition_names, last_updated
 
-def prepare_wordcloud_data(df):
+def prepare_base_wordcloud_data(df):
     # NaN이 포함된 row 제거
     df = df[df['star_rating'].notna() & df['keywords'].notna()]
     # 키워드별로 집계
@@ -65,16 +65,19 @@ def prepare_wordcloud_data(df):
             keyword_count[kw] += 1
             keyword_star_sum[kw] += row['star_rating']
 
-    words = []
+    base_words = []
     for kw in keyword_count:
         avg_rating = keyword_star_sum[kw] / keyword_count[kw]
-        words.append({
+        base_words.append({
             "text": kw,
             "value": keyword_count[kw],
             "avg_rating": round(avg_rating, 2),
             "color": get_color(avg_rating)
         })
-    return words
+    return base_words
+
+def filter_wordcloud_data(base_words, min_count):
+    return [word for word in base_words if word['value'] >= min_count]
 
 def create_wordcloud(words, wordcloud_key):
     return wordcloud.visualize(
@@ -106,6 +109,9 @@ def main():
             "전시회 선택",
             options=exhibition_names
         )
+        # 입력된 최소 등장 횟수
+        min_count = st.number_input("키워드 최소 등장 횟수", min_value=1, max_value=100, value=3, step=1)
+
     
     with col2:
         date_range = st.date_input(
@@ -161,8 +167,11 @@ def main():
         
         # 여기에 새로운 코드 추가
         # 워드클라우드 데이터 준비
-        if 'words' not in st.session_state:
-            st.session_state.words = prepare_wordcloud_data(df)
+        if 'base_words' not in st.session_state:
+            st.session_state.base_words = prepare_base_wordcloud_data(df)
+        
+        # min_count에 따라 필터링
+        st.session_state.words = filter_wordcloud_data(st.session_state.base_words, min_count)
             
         if not st.session_state.words:  # words가 비어있는지 확인
             st.warning("표시할 키워드가 없습니다.")
