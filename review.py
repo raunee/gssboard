@@ -131,14 +131,6 @@ def main():
             value=st.session_state.min_count,
             step=1
         )
-        # 선택된 별점은 버튼 클릭 시에만 반영
-        if "star_ratings" not in st.session_state:
-            st.session_state.star_ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
-        star_rating_input = st.multiselect(
-            "조회할 리뷰 별점 선택",
-            [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
-            default=st.session_state.star_ratings
-        )
 
     
     with col2:
@@ -146,6 +138,14 @@ def main():
             "방문 기간",
             value=((datetime.now().replace(month=1, day=1)).date(), (datetime.now() - timedelta(days=1)).date()),
             key="date_range"
+        )
+        # 선택된 별점은 버튼 클릭 시에만 반영
+        if "star_ratings" not in st.session_state:
+            st.session_state.star_ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+        star_rating_input = st.multiselect(
+            "조회할 리뷰 별점 선택",
+            [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+            default=st.session_state.star_ratings
         )
     
     # 세션 상태 초기화
@@ -243,7 +243,7 @@ def main():
         # 클릭된 키워드가 있으면 리뷰 출력
         if st.session_state.clicked_word:
 
-            clicked_word = selected_word["clicked"]["text"]
+            clicked_word = st.session_state.clicked_word
             filtered_df = df[df['keywords'].apply(lambda x: clicked_word in x)]
             title = f"'{clicked_word}' 키워드가 포함된 리뷰 별점 분포"
 
