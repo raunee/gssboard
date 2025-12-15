@@ -94,7 +94,7 @@ def create_wordcloud(words, wordcloud_key):
     )
 
 def main():
-    st.title("🎨 전시 리뷰 워드클라우드")
+    st.title("🎨 전시 리뷰 데이터 분석")
     
     # 데이터 로드
     client, project_id, dataset, exhibition_names, last_updated = load_processed_data()
