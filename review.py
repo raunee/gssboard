@@ -189,11 +189,11 @@ def main():
         
         # 워드클라우드 시각화
         
-        if (
-            selected_word
-            and isinstance(selected_word.get("clicked"), dict)
-        ):
-            st.session_state.clicked_word = selected_word["clicked"]["text"]
+        # 클릭 결과가 없을 수도 있으니 방어적으로 처리
+        if selected_word and isinstance(selected_word, dict):
+            clicked_info = selected_word.get("clicked")
+            if isinstance(clicked_info, dict) and "text" in clicked_info:
+                st.session_state.clicked_word = clicked_info["text"]
         
         # 클릭된 키워드가 있으면 리뷰 출력
         if st.session_state.clicked_word:
