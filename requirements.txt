@@ -1,9 +1,9 @@
 altair==5.5.0
 gspread==6.2.0
 gspread_dataframe==4.0.0
+numpy
 kiwipiepy==0.20.4
 matplotlib==3.7.1
-numpy
 oauth2client==4.1.3
 pandas
 plotly==6.0.1
