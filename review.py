@@ -109,14 +109,22 @@ def main():
             "전시회 선택",
             options=exhibition_names
         )
-        # 입력된 최소 등장 횟수
-        min_count = st.number_input("키워드 최소 등장 횟수", min_value=1, max_value=100, value=3, step=1)
+        # 입력된 최소 등장 횟수 (버튼 클릭 시에만 적용)
+        if "min_count" not in st.session_state:
+            st.session_state.min_count = 5
+        min_count_input = st.number_input(
+            "키워드 최소 등장 횟수",
+            min_value=1,
+            max_value=100,
+            value=st.session_state.min_count,
+            step=1
+        )
 
     
     with col2:
         date_range = st.date_input(
             "방문 기간",
-            value=((datetime.now() - timedelta(days=1)).date(), (datetime.now() - timedelta(days=1)).date()),
+            value=((datetime.now().replace(month=1, day=1)).date(), (datetime.now() - timedelta(days=1)).date()),
             key="date_range"
         )
     
@@ -143,6 +151,11 @@ def main():
         
         job_config = bigquery.QueryJobConfig(query_parameters=query_params)
         st.session_state.df = client.query(filter_query, job_config=job_config).to_dataframe()
+        st.session_state.min_count = min_count_input
+        # 전시회/기간이 바뀌면 워드클라우드 데이터와 선택 상태 초기화
+        st.session_state.base_words = prepare_base_wordcloud_data(st.session_state.df)
+        st.session_state.clicked_word = None
+        st.session_state.wordcloud_reset = True
         
     if st.session_state.df is not None:
 
@@ -171,7 +184,10 @@ def main():
             st.session_state.base_words = prepare_base_wordcloud_data(df)
         
         # min_count에 따라 필터링
-        st.session_state.words = filter_wordcloud_data(st.session_state.base_words, min_count)
+        st.session_state.words = filter_wordcloud_data(
+            st.session_state.base_words,
+            st.session_state.min_count
+        )
             
         if not st.session_state.words:  # words가 비어있는지 확인
             st.warning("표시할 키워드가 없습니다.")
