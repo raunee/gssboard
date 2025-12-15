@@ -116,12 +116,13 @@ def main():
     st.caption(f"마지막 업데이트: {last_updated.strftime('%Y-%m-%d %H:%M:%S')}")
     
     # 필터 UI
+    selected_exhibition = st.selectbox(
+        "전시회 선택",
+        options=exhibition_names
+    )
+
     col1, col2 = st.columns(2)
     with col1:
-        selected_exhibition = st.selectbox(
-            "전시회 선택",
-            options=exhibition_names
-        )
         # 입력된 최소 등장 횟수 (버튼 클릭 시에만 적용)
         if "min_count" not in st.session_state:
             st.session_state.min_count = 5
@@ -133,21 +134,21 @@ def main():
             step=1
         )
 
-    
     with col2:
         date_range = st.date_input(
             "방문 기간",
             value=((datetime.now().replace(month=1, day=1)).date(), (datetime.now() - timedelta(days=1)).date()),
             key="date_range"
         )
-        # 선택된 별점은 버튼 클릭 시에만 반영
-        if "star_ratings" not in st.session_state:
-            st.session_state.star_ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
-        star_rating_input = st.multiselect(
-            "조회할 리뷰 별점 선택",
-            [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
-            default=st.session_state.star_ratings
-        )
+    
+    # 선택된 별점은 버튼 클릭 시에만 반영
+    if "star_ratings" not in st.session_state:
+        st.session_state.star_ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+    star_rating_input = st.multiselect(
+        "조회할 리뷰 별점 선택",
+        [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+        default=st.session_state.star_ratings
+    )
     
     # 세션 상태 초기화
     if 'df' not in st.session_state:
