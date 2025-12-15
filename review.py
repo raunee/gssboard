@@ -98,6 +98,18 @@ def main():
     
     # 데이터 로드
     client, project_id, dataset, exhibition_names, last_updated = load_processed_data()
+    
+    st.markdown(
+        """
+        :orange-badge[⚠️ 사용 안내]
+        - 옵션 선택 후 데이터 조회를 눌러주세요.
+        - 초기 조회 시 단어 빈도수에 따른 워드클라우드와 전체 리뷰 별점 분포 바 차트가 출력됩니다.
+        - 워드클라우드에서 단어를 클릭하면 해당 단어에 대한 통계가 출력됩니다.
+            - 단어가 등장하는 리뷰의 별점 분포 바 차트, 실제 해당 단어가 포함된 리뷰 원문을 확인할 수 있습니다.
+            - 리뷰 표의 컬럼명을 클릭하면 오름차순/내림차순으로 정렬됩니다.
+        - 선택된 키워드 초기화 버튼을 누르면 단어 선택이 해제됩니다.
+        """
+    )
 
     # 최종 업데이트 시간 표시
     st.caption(f"마지막 업데이트: {last_updated.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -118,6 +130,14 @@ def main():
             max_value=100,
             value=st.session_state.min_count,
             step=1
+        )
+        # 선택된 별점은 버튼 클릭 시에만 반영
+        if "star_ratings" not in st.session_state:
+            st.session_state.star_ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+        star_rating_input = st.multiselect(
+            "조회할 리뷰 별점 선택",
+            [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+            default=st.session_state.star_ratings
         )
 
     
@@ -151,7 +171,16 @@ def main():
         
         job_config = bigquery.QueryJobConfig(query_parameters=query_params)
         st.session_state.df = client.query(filter_query, job_config=job_config).to_dataframe()
+        # visit_date에 시간이 포함되어 있으면 날짜만 남기도록 변환
+        if "visit_date" in st.session_state.df.columns:
+            st.session_state.df["visit_date"] = pd.to_datetime(st.session_state.df["visit_date"]).dt.date
         st.session_state.min_count = min_count_input
+        st.session_state.star_ratings = star_rating_input
+        # 선택된 별점만 남기기
+        if st.session_state.star_ratings:
+            st.session_state.df = st.session_state.df[
+                st.session_state.df["star_rating"].isin(st.session_state.star_ratings)
+            ]
         # 전시회/기간이 바뀌면 워드클라우드 데이터와 선택 상태 초기화
         st.session_state.base_words = prepare_base_wordcloud_data(st.session_state.df)
         st.session_state.clicked_word = None
