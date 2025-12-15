@@ -123,6 +123,13 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
+        date_range = st.date_input(
+            "방문 기간",
+            value=((datetime.now().replace(month=1, day=1)).date(), (datetime.now() - timedelta(days=1)).date()),
+            key="date_range"
+        )
+
+    with col2:
         # 입력된 최소 등장 횟수 (버튼 클릭 시에만 적용)
         if "min_count" not in st.session_state:
             st.session_state.min_count = 5
@@ -132,13 +139,6 @@ def main():
             max_value=100,
             value=st.session_state.min_count,
             step=1
-        )
-
-    with col2:
-        date_range = st.date_input(
-            "방문 기간",
-            value=((datetime.now().replace(month=1, day=1)).date(), (datetime.now() - timedelta(days=1)).date()),
-            key="date_range"
         )
     
     # 선택된 별점은 버튼 클릭 시에만 반영
